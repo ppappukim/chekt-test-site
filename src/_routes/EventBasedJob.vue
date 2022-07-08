@@ -3,8 +3,8 @@
     <div class="col q-col-gutter-lg q-pa-xl">
       
       <!-- Trigger -->
-      <div class="text-h6">Trigger</div>
-      <div class="text-body">When triggered somthing...</div>
+      <div class="text-h6">Trisgasdger</div>
+      <div class="text-body">When triggersed somthing...</div>
       <div class="row q-col-gutter-md">
         <!-- Step 1 -->
         <q-select outlined v-model="triggerType" :options="triggerTypeList" label="Trigger Type" style="width: 300px" />
