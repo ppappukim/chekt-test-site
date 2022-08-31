@@ -1,6 +1,6 @@
 <template>
   <div>
-    <div class="col q-col-gutter-lg q-pa-xl" style="text-align: left;">
+    <div class="col q-col-gutter-lg q-pa-xl" style="text-align:left;">
       
       <!-- Trigger -->
       <div class="text-h6">Trigger</div>
