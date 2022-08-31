@@ -1,102 +1,51 @@
 <template>
   <div>
-    <div class="col q-col-gutter-lg q-pa-xl" style="text-align:left;">
-      
-      <!-- Trigger -->
-      <div class="text-h6">Trigger</div>
-      <div class="text-body">When triggered somthing..?.</div>
-      <div class="row q-col-gutter-md">
-        <!-- Step 1 -->
-        <q-select outlined v-model="triggerType" :options="triggerTypeList" label="Trigger Type" style="width: 300px" />
-        <!-- Step 2 -->
-        <q-select v-if="triggerType && triggerType == 'Zone Triggered'" multiple outlined stack-label use-chips v-model="triggerTypeChild" :rules="[triggerTypeChildRule]" :options="triggerTypeChildList" label="Trigger Type 2" style="width: 300px" />
-        <q-select v-else-if="triggerType" outlined v-model="triggerTypeChild" :options="triggerTypeChildList" label="Trigger Type 2" style="width: 300px" />
-        <!-- Step 3 -->
-        <q-select v-if="triggerType == 'Relay'" outlined  v-model="triggerTypeChildChild" :options="triggerTypeChildChildList" label="Trigger Type 3" style="width: 300px" />
-        <!-- Step 4 -->
-        <q-input 
-        v-if="triggerType == 'Relay' && triggerTypeChildChild == 'Momentary'" 
-        v-model="triggerTypeChildChildChild" 
-        filled 
-        type="number"
-        :rules="[
-          triggerTypeChildChildChild => !!triggerTypeChildChildChild || '* Required',
-          triggerTypeChildChildChild => triggerTypeChildChildChild < 61 || 'Can set max 60seconds',
-        ]" 
-        label="Action Type 4"
-        hint="Max 60seconds" 
-        suffix="second(s)" />
-      </div>
 
-      <!-- Action -->
+    <!-- Trigger -->
+    <Trigger class="col q-col-gutter-lg q-pl-xl q-pt-xl" />
+
+    <!-- Condition -->
+    <div ref="actions" class="col q-col-gutter-lg q-pl-xl q-pt-lg">
+      <div class="text-h6" style="margin-top:50px;">Condition</div>
+      <div class="text-body">When Condition is...</div>
+      <Condition class="col q-col-gutter-lg q-pt-lg" />
+      <div v-for="(v, i) in conditionList" :key="v">
+        <div class="row">
+          <div @click="onClickRemoveCondi(i)" style="margin-top:7px; padding-right:20px;">
+            <q-btn round color="white" text-color="red" icon="remove" />
+          </div>
+          <Condition class="col" />
+        </div>
+      </div>
+      <!-- Button -->
+      <div v-if="!hideCondiButton">
+        <q-btn color="white" text-color="black" icon="add"  label="Add another condition" @click="addAnotherCondi()"></q-btn>
+      </div>
+      <div v-else class="text-subtitle1"> Max 5 Conditions.</div>
+    </div>
+    
+
+    <!-- Action -->
+    <div ref="actions" class="col q-col-gutter-lg q-pl-xl q-pt-lg">
       <div class="text-h6" style="margin-top:50px;">Action</div>
       <div class="text-body">Do Action somthing...</div>
-      <div class="row q-col-gutter-md">
-        <!-- Step 1 -->
-        <q-select outlined v-model="actionType" :options="actionTypeList" label="Action Type" style="width: 300px" />
-        <!-- Step 2 -->
-        <q-select v-if="actionType == 'Record Video'" multiple outlined stack-label use-chips v-model="actionTypeChild" :options="actionTypeChildList" label="Action Type 2" style="width: 300px" />
-        <q-select v-else-if="actionType" outlined v-model="actionTypeChild" :options="actionTypeChildList" label="Action Type 2" style="width: 300px" />
-        <!-- Step 3 -->
-        <q-select v-if="actionTypeChildChild" outlined v-model="actionTypeChildChild" :options="actionTypeChildChildList" label="Action Type 3" style="width: 300px" />
-        <!-- Step 4 -->
-        <q-input 
-        v-if="actionType == 'Relay' && actionTypeChildChild == 'Momentary'" 
-        v-model="actionTypeChildChildChild" 
-        filled 
-        type="number"
-        :rules="[
-          actionTypeChildChildChild => !!actionTypeChildChildChild || '* Required',
-          actionTypeChildChildChild => actionTypeChildChildChild < 61 || 'Can set max 60seconds',
-        ]" 
-        label="Action Type 4"
-        hint="Max 60seconds" 
-        suffix="second(s)" />
-
-        <q-input 
-        type="number"
-        v-if="actionType == 'Talkdown' && actionTypeChildChild !== '1 time'" 
-        v-model="actionTypeChildChildChild" 
-        filled 
-        :rules="[
-          actionTypeChildChildChild => !!actionTypeChildChildChild || '* Required',
-          actionTypeChildChildChild => actionTypeChildChildChild < 61 || 'Can set max 60seconds',
-        ]" 
-        label="Action Type 4"
-        hint="Max 60minutes" 
-
-        fill-mask="0"
-        prefix="Every"
-        suffix="Minute(s)" />
-
-        <!-- <q-select v-if="actionType == 'Talkdown'" outlined v-model="actionTypeChildChildChild" :options="actionTypeChildChildChildList" prefix="Every" label="Action Type 4" style="width: 300px" /> -->
+      <Action class="col q-col-gutter-lg q-pt-lg" />
+      <div v-for="(v, i) in actionList" :key="v">
+        <div class="row">
+          <div @click="onClickRemoveAction(i)" style="margin-top:7px; padding-right:20px;">
+            <q-btn round color="white" text-color="red" icon="remove" />
+          </div>
+          <Action class="col" />
+        </div>
       </div>
-      <div class="q-py-xl">
-        <q-btn color="primary" label="Add another action" @click="addRule"></q-btn>
+      <!-- Button -->
+      <div v-if="!hideActionButton">
+        <q-btn color="white" text-color="black" icon="add"  label="Add another action" @click="addAnotherAction()"></q-btn>
       </div>
-
-      <!-- Condition -->
-      <div class="text-h6" style="margin-top:50px;">Condition</div>
-      <div class="text-body">Only do somthing when Condition is...</div>
-      <div class="row q-col-gutter-md">
-        <!-- Step 1 -->
-        <q-select outlined v-model="condiType" :options="condiTypeList" label="Condition Type" style="width: 300px" />
-
-        <!-- Step 2 -->
-        <q-select v-if="condiType == 'Time'" v-model="condiTypeChild" :options="condiTypeChildList" label="Condition Type 2" outlined multiple stack-label use-chips style="width: 300px" />
-        <q-select v-if="condiType == 'Arming'" v-model="condiTypeChild" :options="condiTypeChildList" label="Condition Type 2" outlined style="width: 300px" />
-        
-         <!-- Step 3 -->
-        <q-input v-if="condiType == 'Time'" v-model="condiTypeChildChildStart" filled type="time" hint="Start" />
-        <q-input v-if="condiType == 'Time'" v-model="condiTypeChildChildEnd" filled type="time"  hint="End"/>
-      </div>
-      
+      <div class="text-subtitle1" v-else> Max 5 Actions.</div>
     </div>
 
-    <!-- Button -->
-    <!-- <div class="q-pa-xl">
-      <q-btn color="primary" label="Add" @click="addRule"></q-btn>
-    </div> -->
+
 
     <!-- List -->
     <div id="ruleList">
@@ -107,114 +56,22 @@
 </template>
 
 <script>
+import Action from '@/components/automationrule/Action'
+import Condition from '@/components/automationrule/Condition'
+import Trigger from '@/components/automationrule/Trigger'
+
 export default {
-  name: 'AutomationRule',
+  name: 'automation-rule',
   props: {
-    msg: String
   },
   components: {
+    Action,
+    Condition,
+    Trigger
   },
   computed: {
   },
   watch: {
-    
-    // Trigger
-    triggerType: function () {
-
-      // When Select Trigger - Arming Change
-      // Delete Condition - Arming 
-      if (this.triggerType == 'Arming Change') {
-        if (this.condiType == 'Arming') this.condiType = null
-        this.condiTypeList = ['No Condition','Time']
-      }
-      else this.condiTypeList = ['No Condition', 'Time', 'Arming']
-
-    
-      switch (this.triggerType) {
-        case 'zone triggered':
-        case 'Zone Triggered':
-          // this.triggerTypeChild = null
-          this.triggerTypeChildList = ['All Zones','Zone A', 'Zone B (Bridge A)', 'Zone B (Bridge B)', 'Zone C', 'Zone D']
-          // this.triggerTypeChildChildList = ['Active', 'Inactive']
-          this.triggerTypeChild = [this.triggerTypeChildList[0]]
-          // this.triggerTypeChildChild = this.triggerTypeChildChildList[0]
-          break;
-        case 'arming change':
-        case 'Arming Change':
-          this.triggerTypeChildList = ['Armed', 'Disarmed']
-          this.triggerTypeChild = this.triggerTypeChildList[0]
-
-          break;
-        case 'monitoring portal':
-        case 'Monitoring Portal':
-          this.triggerTypeChildList = ['Open', 'Close']
-          this.triggerTypeChild = this.triggerTypeChildList[0]
-          break;
-        case 'Relay':
-        case 'relay':
-          this.triggerTypeChildList = ['Relay A', 'Relay B', 'Relay C']
-          this.triggerTypeChildChildList = ['Latch', 'Momentary']
-          this.triggerTypeChild = this.triggerTypeChildList[0]
-          this.triggerTypeChildChild = this.triggerTypeChildChildList[0]
-          this.triggerTypeChildChildChild = '60'
-          break;
-      
-        default:
-          break;
-      }
-    },
-
-    // Action
-    actionType: function () {
-      switch (this.actionType) {
-        case 'talkdown':
-        case 'Talkdown':
-          this.actionTypeChildList = ['Message A', 'Message B', 'Message C']
-          this.actionTypeChildChildList = ['1 time', '2 times', '3 times', '4 times', '5 times']
-          this.actionTypeChild = this.actionTypeChildList[0]
-          this.actionTypeChildChild = this.actionTypeChildChildList[0]
-          this.actionTypeChildChildChild = '01'
-          break;
-        case 'relay':
-        case 'Relay':
-          this.actionTypeChildList = ['Relay A', 'Relay B', 'Relay C']
-          this.actionTypeChildChildList = ['Latch', 'Momentary']
-          this.actionTypeChild = this.actionTypeChildList[0]
-          this.actionTypeChildChild = this.actionTypeChildChildList[0]
-          this.actionTypeChildChildChild = '60'
-          break;
-        case 'record video':
-        case 'Record Video':
-          this.actionTypeChildList = ['Camera A', 'Camera B', 'Camera C']
-          this.actionTypeChild = [this.actionTypeChildList[0]]
-          this.actionTypeChildChild = null
-          break;
-        default:
-          break;
-      }
-    },
-    // Condition
-    condiType: function () {
-      switch (this.condiType) {
-        case 'Time':
-        case 'time':
-          this.condiTypeChildList = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']
-          this.condiTypeChild = null
-          break;
-        case 'Arming':
-        case 'arming':
-          this.condiTypeChildList = ['Armed', 'Disarmed']
-          this.condiTypeChild = this.condiTypeChildList[0]
-          break;
-        default:
-          break;
-      }
-    },
-    condiTypeChild: function () {
-      if (this.condiTypeChild == 'Day') {
-        this.condiTypeChildChildList = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']
-      }
-    },
   },
   created: function () {
     // this.init()
@@ -226,48 +83,38 @@ export default {
   data: function() {
     return {
       ruleList: null,
-
-      triggerType: null,
-      triggerTypeChild: null,
-      triggerTypeChildChild: null,
-      triggerTypeChildChildChild: null,
-      triggerTypeList: ['Zone Triggered', 'Arming Change', 'Monitoring Portal', 'Relay'],
-      triggerTypeChildList: [],
-      triggerTypeChildChildList: [],
-
-
-      actionType: null,
-      actionTypeChild: null,
-      actionTypeChildChild: null,
-      actionTypeChildChildChild: null,
-      actionTypeList: ['Talkdown', 'Relay', 'Record Video'],
-      actionTypeChildList: [],
-      actionTypeChildChildList: [],
-      actionTypeChildChildChildList: [],
-
-
-      condiType: null,
-      condiTypeChild: null,
-      condiTypeChildChildStart: null,
-      condiTypeChildChildEnd: null,
-      condiTypeList: ['No Condition', 'Time', 'Arming'],
-      condiTypeChildList: [],
-      condiTypeChildChildList: [],
-
+      actionList: [],
+      actionIndex: 0,
+      conditionList: [],
+      conditionIndex: 0,
+      hideActionButton: false,
+      hideCondiButton: false 
     }
   },
   methods: {
-    triggerTypeChildRule: function (val) {
-      for (let i = 0; i < val.length; i++) {
-        const triggerTypeChild = val[i];
-        console.log(triggerTypeChild);
-
-        if (triggerTypeChild == 'All Zone' && val.length > 1) {
-          this.triggerTypeChild = []
-          this.triggerTypeChild = [val[val.length-1]]
-          break 
-        }
+    addAnotherAction: function () {
+      if (this.actionIndex > 2) {
+        this.hideActionButton = true
+        this.actionList.push(`action${this.actionIndex++}`)
       }
+      else this.actionList.push(`action${this.actionIndex++}`)
+    },
+    onClickRemoveAction: function (i) {
+      if (this.actionIndex < 5) this.hideActionButton = false
+      this.actionList.splice(i, 1)
+      this.actionIndex--
+    },
+    addAnotherCondi: function () {
+      if (this.conditionIndex > 2) {
+        this.hideCondiButton = true
+        this.conditionList.push(`action${this.conditionIndex++}`)
+      }
+      else this.conditionList.push(`action${this.conditionIndex++}`)
+    },
+    onClickRemoveCondi: function (i) {
+      if (this.conditionIndex < 5) this.hideCondiButton = false
+      this.conditionList.splice(i, 1)
+      this.conditionIndex--
     },
     addRule: function () {
       let triggerType = ``
